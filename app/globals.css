@@ -1,0 +1,223 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* ── Fontes ── */
+:root {
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-barlow-condensed: "Barlow Condensed", sans-serif;
+  --font-barlow: "Barlow", sans-serif;
+}
+
+/* ── Cor da marca ── */
+:root {
+  --brand-red:       #C8102E;
+  --brand-red-hover: #E01030;
+}
+
+/* ── Tokens de cor ── */
+:root {
+  color-scheme: light;
+  --c-bg:       #F5F6F8;
+  --c-bg-alt:   #EEF0F3;
+  --c-raised:   #FAFBFC;
+  --c-surface:  #FFFFFF;
+  --c-surface2: #F2F4F7;
+  --c-border:   #EAEDF2;
+  --c-border2:  #F2F4F8;
+  --c-border3:  #CBD5E1;
+  --c-text:     #0F172A;
+  --c-text2:    #475569;
+  --c-text3:    #94A3B8;
+  --c-text4:    #CBD5E1;
+  --c-inv:      #FFFFFF;    /* inverso do texto */
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Base maior p/ legibilidade — escala todo o sistema de tipografia.
+     Cliente pediu fonte maior e mais legível. */
+  font-size: 17.5px;
+}
+@media (min-width: 768px) {
+  html { font-size: 18px; }
+}
+
+/* Transição suave ao trocar tema */
+body,
+header,
+footer,
+main,
+section,
+aside,
+nav,
+article {
+  transition: background-color 0.2s ease, border-color 0.15s ease;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-barlow), sans-serif;
+  /* Peso de corpo 500 (médio) em vez de 400 — texto mais encorpado/legível.
+     Títulos/labels com font-bold/semibold continuam por cima. */
+  font-weight: 500;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--c-raised); }
+::-webkit-scrollbar-thumb { background: var(--brand-red); border-radius: 3px; }
+
+::selection { background: var(--brand-red); color: #FFFFFF; }
+
+/* Nav link com underline animado */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--brand-red);
+  transition: width 0.25s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.skew-label {
+  display: inline-block;
+  transform: skewX(-6deg);
+}
+
+/* ── Sombras premium (cards flutuantes, sem borda) ── */
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.06), 0 5px 14px -4px rgba(16, 24, 40, 0.14), 0 14px 28px -10px rgba(16, 24, 40, 0.12);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 2px 6px -1px rgba(16, 24, 40, 0.10), 0 12px 24px -6px rgba(16, 24, 40, 0.18), 0 24px 48px -16px rgba(16, 24, 40, 0.20);
+  }
+  .hover\:shadow-card-hover:hover {
+    box-shadow: 0 2px 6px -1px rgba(16, 24, 40, 0.10), 0 12px 24px -6px rgba(16, 24, 40, 0.18), 0 24px 48px -16px rgba(16, 24, 40, 0.20);
+  }
+}
+
+/* ── Animações de entrada (CSS puro, sem JS) ── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bar-grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes reveal-right {
+  from { opacity: 0; transform: translateX(48px) scale(1.02); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes car-cruise {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+@keyframes speed-streaks {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-140px); }
+}
+@keyframes shine-sweep {
+  0%   { background-position: -150% 0; }
+  60%  { background-position: 250% 0; }
+  100% { background-position: 250% 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .anim-fade   { animation: fade-in 0.2s ease-out both; }
+  .anim-drawer { animation: slide-in-right 0.28s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+  .anim-menu   { animation: slide-down 0.2s ease-out both; }
+
+  .reveal {
+    opacity: 0;
+    animation: reveal-up 0.7s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+  }
+  .reveal-x {
+    opacity: 0;
+    animation: reveal-right 0.95s cubic-bezier(0.22, 0.7, 0.2, 1) 0.15s both;
+  }
+  .reveal-d1 { animation-delay: 0.08s; }
+  .reveal-d2 { animation-delay: 0.18s; }
+  .reveal-d3 { animation-delay: 0.30s; }
+  .reveal-d4 { animation-delay: 0.42s; }
+
+  /* Barra vermelha da marca cresce de cima pra baixo */
+  .bar-grow {
+    transform-origin: top;
+    animation: bar-grow 0.9s cubic-bezier(0.22, 0.7, 0.2, 1) 0.1s both;
+  }
+
+  /* Carro flutuando levemente, como cruzando a estrada */
+  .car-cruise {
+    animation: car-cruise 3.4s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Linhas de velocidade passando atrás do carro */
+  .speed-streaks {
+    background-image: repeating-linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 0px,
+      rgba(255, 255, 255, 0) 90px,
+      rgba(255, 255, 255, 0.16) 96px,
+      rgba(255, 255, 255, 0) 104px
+    );
+    width: 160%;
+    animation: speed-streaks 0.55s linear infinite;
+    will-change: transform;
+  }
+
+  /* Brilho que cruza o destaque do título uma única vez */
+  .shine {
+    background-image: linear-gradient(
+      100deg,
+      currentColor 0%,
+      currentColor 38%,
+      rgba(255, 255, 255, 0.92) 50%,
+      currentColor 62%,
+      currentColor 100%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine-sweep 1.6s ease-out 0.7s 1 both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .reveal-x { opacity: 1 !important; }
+  .car-cruise, .speed-streaks { animation: none !important; }
+}
