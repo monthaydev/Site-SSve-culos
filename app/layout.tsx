@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Providers from "./providers";
+import { CONFIG, SITE_URL } from "@/lib/config";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -28,17 +29,43 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: "SS Veículos — Há mais de 20 anos realizando sonhos | Cacoal-RO",
   description:
     "Encontre seu próximo veículo na SS Veículos. Carros, caminhões e utilitários em Cacoal-RO. Mais de 22 anos realizando sonhos.",
   keywords: "veículos, carros, seminovos, locadora, Cacoal, Rondônia, SS Veículos",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "SS Veículos — Cacoal-RO",
     description: "Há mais de 22 anos realizando sonhos. Venda e locação de veículos.",
+    url: SITE_URL,
+    siteName: "SS Veículos",
     images: ["/logo-ss-veiculos-fundo.png"],
+    locale: "pt_BR",
     type: "website",
   },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoDealer",
+  name: "SS Veículos",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo-ss-veiculos.png`,
+  image: `${SITE_URL}/logo-ss-veiculos-fundo.png`,
+  telephone: CONFIG.phone.href.replace("tel:", ""),
+  email: CONFIG.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Av. Castelo Branco, 20644 — Novo Horizonte",
+    addressLocality: "Cacoal",
+    addressRegion: "RO",
+    addressCountry: "BR",
+  },
+  openingHours: ["Mo-Fr 08:00-18:00", "Sa 08:00-12:00"],
+  sameAs: [CONFIG.social.instagram, CONFIG.social.facebook],
 };
 
 export default function RootLayout({
@@ -52,6 +79,12 @@ export default function RootLayout({
       className={`${bebasNeue.variable} ${barlowCondensed.variable} ${barlow.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col bg-c-bg text-c-text">
         <Providers>
           <Header />

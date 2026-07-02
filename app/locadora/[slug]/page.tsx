@@ -42,6 +42,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       v.descricao ||
       `Alugue o ${v.marca} ${v.modelo} ${v.versao} na SS Veículos, Cacoal–RO. Diárias e planos mensais.`,
+    alternates: {
+      canonical: `/locadora/${slug}`,
+    },
     openGraph: {
       title: `${v.marca} ${v.modelo} ${v.versao} — Locação`,
       images: v.fotos[0] ? [{ url: v.fotos[0], alt: `${v.marca} ${v.modelo}` }] : [],
