@@ -9,7 +9,10 @@ import {
   DollarSign,
   LayoutGrid,
   Plus,
+  Eye,
+  Users,
 } from "lucide-react";
+import GraficoVisitas, { type DiaVisitas } from "./GraficoVisitas";
 
 export const metadata = { title: "Dashboard — Admin SS Veículos" };
 
@@ -34,6 +37,24 @@ const CAT_LABEL: Record<string, string> = {
   Van: "Vans",
 };
 
+const FUSO_HORARIO = "America/Porto_Velho";
+
+function diaISO(data: Date) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: FUSO_HORARIO }).format(data);
+}
+
+function subtrairDias(base: Date, n: number) {
+  return new Date(base.getTime() - n * 24 * 60 * 60 * 1000);
+}
+
+function ultimosNDias(base: Date, n: number) {
+  const dias: string[] = [];
+  for (let i = n - 1; i >= 0; i--) {
+    dias.push(diaISO(subtrairDias(base, i)));
+  }
+  return dias;
+}
+
 export default async function AdminDashboard() {
   const supabase = await createClient();
 
@@ -44,6 +65,7 @@ export default async function AdminDashboard() {
     { count: ocultos },
     { data: recentes },
     { data: estoqueAtivo },
+    { data: resumoVisitas },
   ] = await Promise.all([
     supabase.from("veiculos").select("*", { count: "exact", head: true }),
     supabase
@@ -65,7 +87,34 @@ export default async function AdminDashboard() {
       .order("created_at", { ascending: false })
       .limit(6),
     supabase.from("veiculos").select("preco,categoria").eq("ativo", true).limit(1000),
+    supabase.rpc("visitas_resumo") as unknown as Promise<{
+      data: { dia: string; paginas_vistas: number; visitantes_unicos: number }[] | null;
+    }>,
   ]);
+
+  const resumo = resumoVisitas ?? [];
+  const agora = new Date();
+  const hoje = diaISO(agora);
+  const seteDiasAtras = diaISO(subtrairDias(agora, 6));
+  const inicioMes = `${hoje.slice(0, 7)}-01`;
+
+  const somaAcessos = (desde?: string) =>
+    resumo.reduce((acc, d) => (!desde || d.dia >= desde ? acc + d.paginas_vistas : acc), 0);
+
+  const acessos = {
+    hoje: somaAcessos(hoje),
+    seteDias: somaAcessos(seteDiasAtras),
+    mes: somaAcessos(inicioMes),
+    total: somaAcessos(),
+  };
+
+  const visitantesHoje = resumo.find((d) => d.dia === hoje)?.visitantes_unicos ?? 0;
+
+  const mapaVisitas = new Map(resumo.map((d) => [d.dia, d.paginas_vistas]));
+  const dadosGrafico: DiaVisitas[] = ultimosNDias(agora, 30).map((dia) => ({
+    dia,
+    paginas_vistas: mapaVisitas.get(dia) ?? 0,
+  }));
 
   const valorTotal =
     estoqueAtivo?.reduce((acc, v) => acc + (v.preco ?? 0), 0) ?? 0;
@@ -149,6 +198,47 @@ export default async function AdminDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Eye size={14} className="text-c-text3" />
+          <h2 className="text-c-text3 text-xs uppercase tracking-widest font-bold">
+            Acessos ao site
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          {[
+            { label: "Hoje", value: acessos.hoje },
+            { label: "Últimos 7 dias", value: acessos.seteDias },
+            { label: "Este mês", value: acessos.mes },
+            { label: "Total", value: acessos.total },
+          ].map((k) => (
+            <div
+              key={k.label}
+              className="bg-c-surface rounded-xl shadow-card p-4 flex flex-col gap-1"
+            >
+              <p className="text-2xl font-black text-c-text leading-none tabular-nums">
+                {k.value}
+              </p>
+              <p className="text-c-text3 text-xs">{k.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-c-surface rounded-xl shadow-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-c-text3 text-xs uppercase tracking-widest font-bold">
+              Últimos 30 dias
+            </p>
+            <div className="flex items-center gap-1.5 text-c-text3 text-xs">
+              <Users size={12} />
+              {visitantesHoje} visitante{visitantesHoje !== 1 ? "s" : ""} hoje
+            </div>
+          </div>
+          <GraficoVisitas dados={dadosGrafico} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

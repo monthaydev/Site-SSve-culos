@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import VisitTracker from "@/components/VisitTracker";
 import Providers from "./providers";
 import { CONFIG, SITE_URL } from "@/lib/config";
 
@@ -87,6 +88,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-c-bg text-c-text">
         <Providers>
+          <VisitTracker />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

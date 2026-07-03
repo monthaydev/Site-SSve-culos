@@ -245,6 +245,49 @@ insert into public.vendedores (nome, whatsapp, ordem) values
 on conflict do nothing;
 
 -- ============================================================
+-- Tabela: visitas (contador de acessos ao site, exibido no dashboard)
+-- ============================================================
+create table if not exists public.visitas (
+  id         bigint generated always as identity primary key,
+  path       text not null check (
+               path like '/%' and path not like '/admin%' and char_length(path) <= 200
+             ),
+  visitor_id uuid not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists visitas_created_at_idx on public.visitas (created_at);
+create index if not exists visitas_visitor_id_idx on public.visitas (visitor_id);
+
+-- RLS ativado: qualquer um pode registrar uma visita (insert), mas ninguém
+-- lê a tabela crua — nem o admin. Leitura só pela função agregada abaixo.
+alter table public.visitas enable row level security;
+
+drop policy if exists "visitas_insert_public" on public.visitas;
+create policy "visitas_insert_public" on public.visitas for insert with check (true);
+
+-- Resumo diário (páginas vistas + visitantes únicos por dia), já no fuso de
+-- Rondônia. Só retorna dados se quem chamar for admin — senão vem vazio.
+create or replace function public.visitas_resumo()
+returns table (dia date, paginas_vistas bigint, visitantes_unicos bigint)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select
+    (v.created_at at time zone 'America/Porto_Velho')::date as dia,
+    count(*) as paginas_vistas,
+    count(distinct v.visitor_id) as visitantes_unicos
+  from public.visitas v
+  where public.is_admin()
+  group by 1
+  order by 1;
+$$;
+
+grant execute on function public.visitas_resumo() to authenticated;
+
+-- ============================================================
 -- PASSO MANUAL — fazer 1 vez por projeto, depois de rodar este script:
 --
 -- 1. No painel do Supabase: Authentication → Users → "Add user".
