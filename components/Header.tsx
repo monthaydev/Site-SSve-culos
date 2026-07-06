@@ -9,7 +9,7 @@ import { CONFIG, WA_DEFAULT } from "@/lib/config";
 
 const navLinks = [
   { href: "/sobre",         label: "Sobre" },
-  { href: "/estoque",       label: "Frota" },
+  { href: "/estoque",       label: "Veículos" },
   { href: "/locadora",      label: "Locadora" },
   { href: "/servicos",      label: "Serviços" },
   { href: "/financiamento", label: "Financiamento" },
