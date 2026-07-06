@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, Expand, Car } from "lucide-react";
 
@@ -9,13 +9,57 @@ interface Props {
   alt: string;
 }
 
+const SWIPE_THRESHOLD = 40;
+
 export default function Galeria({ fotos, alt }: Props) {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX = useRef(0);
+  const didSwipe = useRef(false);
 
   const prev = useCallback(() => setIdx((i) => (i - 1 + fotos.length) % fotos.length), [fotos.length]);
   const next = useCallback(() => setIdx((i) => (i + 1) % fotos.length), [fotos.length]);
   const close = useCallback(() => setLightbox(false), []);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (touchStartX.current === null) return;
+    if (touchDeltaX.current > SWIPE_THRESHOLD) {
+      prev();
+      didSwipe.current = true;
+    } else if (touchDeltaX.current < -SWIPE_THRESHOLD) {
+      next();
+      didSwipe.current = true;
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  }, [prev, next]);
+
+  const onMainClick = useCallback(() => {
+    if (didSwipe.current) {
+      didSwipe.current = false;
+      return;
+    }
+    setLightbox(true);
+  }, []);
+
+  const onLightboxBackdropClick = useCallback(() => {
+    if (didSwipe.current) {
+      didSwipe.current = false;
+      return;
+    }
+    close();
+  }, [close]);
 
   useEffect(() => {
     if (!lightbox) return;
@@ -44,8 +88,11 @@ export default function Galeria({ fotos, alt }: Props) {
   return (
     <>
       <div
-        className="relative aspect-[16/10] bg-c-surface overflow-hidden rounded-xl cursor-zoom-in group"
-        onClick={() => setLightbox(true)}
+        className="relative aspect-[16/10] bg-c-surface overflow-hidden rounded-xl cursor-zoom-in group touch-pan-y"
+        onClick={onMainClick}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       >
         <Image
           src={fotos[idx]}
@@ -120,8 +167,11 @@ export default function Galeria({ fotos, alt }: Props) {
 
       {lightbox && (
         <div
-          className="fixed inset-0 z-[200] bg-black/97 flex items-center justify-center"
-          onClick={close}
+          className="fixed inset-0 z-[200] bg-black/97 flex items-center justify-center touch-pan-y"
+          onClick={onLightboxBackdropClick}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           <button
             type="button"
