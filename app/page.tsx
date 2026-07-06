@@ -77,7 +77,7 @@ export default async function Home() {
           <div className="reveal reveal-d4 flex flex-wrap items-center gap-x-8 gap-y-3 mt-6">
             {[
               { value: "22+", label: "Anos de mercado" },
-              { value: totalEstoque > 0 ? `${totalEstoque}` : "—", label: "Veículos na frota" },
+              { value: totalEstoque > 0 ? `${totalEstoque}` : "—", label: "Veículos Disponíveis" },
               { value: "100%", label: "Comprometimento" },
             ].map((s) => (
               <div key={s.label} className="flex items-baseline gap-2">
@@ -125,7 +125,7 @@ export default async function Home() {
           <div className="bg-c-surface rounded-2xl shadow-card p-16 text-center">
             <Car size={32} className="text-c-border3 mx-auto mb-4" />
             <p className="font-condensed text-c-text3 uppercase tracking-wide text-sm">
-              Frota sendo atualizada
+              Veículos  sendo atualizados
             </p>
           </div>
         ) : (
@@ -141,7 +141,7 @@ export default async function Home() {
             href="/estoque"
             className="inline-flex items-center gap-2 border border-c-border3 hover:border-brand-red text-c-text font-condensed font-bold uppercase tracking-widest px-8 py-3 text-sm rounded-lg transition-colors"
           >
-            Ver frota completa <ArrowRight size={14} />
+            Ver  todos os veículos  <ArrowRight size={14} />
           </Link>
         </div>
       </section>

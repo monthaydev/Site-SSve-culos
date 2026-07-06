@@ -22,7 +22,7 @@ function FacebookIcon({ size = 16 }: { size?: number }) {
 
 const navLinks = [
   { href: "/sobre",         label: "Sobre nós" },
-  { href: "/estoque",       label: "Frota" },
+  { href: "/estoque",       label: "Veículos" },
   { href: "/locadora",      label: "Locadora" },
   { href: "/servicos",      label: "Serviços" },
   { href: "/financiamento", label: "Financiamento" },
