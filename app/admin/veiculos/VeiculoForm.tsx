@@ -5,6 +5,20 @@ import { useFormStatus } from "react-dom";
 import { X, Upload, Loader2, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+async function converterSeHeic(file: File): Promise<File> {
+  const ehHeic =
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    /\.hei[cf]$/i.test(file.name);
+  if (!ehHeic) return file;
+
+  const heic2any = (await import("heic2any")).default;
+  const resultado = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.85 });
+  const blob = Array.isArray(resultado) ? resultado[0] : resultado;
+  const nomeConvertido = file.name.replace(/\.hei[cf]$/i, ".jpg");
+  return new File([blob], nomeConvertido, { type: "image/jpeg" });
+}
+
 interface VeiculoFormData {
   marca?: string;
   modelo?: string;
@@ -99,14 +113,27 @@ export default function VeiculoForm({
   );
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (files.length === 0) return;
+    const arquivosOriginais = Array.from(e.target.files ?? []);
+    if (arquivosOriginais.length === 0) return;
 
     const MAX_FOTOS = 20;
     const MAX_SIZE_MB = 5;
 
-    if (fotos.length + files.length > MAX_FOTOS) {
+    if (fotos.length + arquivosOriginais.length > MAX_FOTOS) {
       setUploadErro(`Limite de ${MAX_FOTOS} fotos por veículo.`);
+      (e.target as HTMLInputElement).value = "";
+      return;
+    }
+
+    setUploading(true);
+    setUploadErro("");
+
+    let files: File[];
+    try {
+      files = await Promise.all(arquivosOriginais.map(converterSeHeic));
+    } catch {
+      setUploadErro("Não foi possível converter uma das fotos HEIC. Tente exportá-la como JPG.");
+      setUploading(false);
       (e.target as HTMLInputElement).value = "";
       return;
     }
@@ -118,12 +145,10 @@ export default function VeiculoForm({
       setUploadErro(
         `Arquivo inválido: apenas imagens até ${MAX_SIZE_MB}MB são aceitas.`
       );
+      setUploading(false);
       (e.target as HTMLInputElement).value = "";
       return;
     }
-
-    setUploading(true);
-    setUploadErro("");
 
     const supabase = createClient();
     const novasUrls: string[] = [];
@@ -542,14 +567,15 @@ export default function VeiculoForm({
           <input
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,.heic,.heif"
             className="hidden"
             disabled={uploading}
             onChange={handleFileChange}
           />
         </label>
         <p className="text-c-text4 text-xs mt-2">
-          JPG, PNG ou WEBP. Passe o mouse sobre uma foto para removê-la ou
+          JPG, PNG, WEBP ou HEIC (fotos de iPhone são convertidas
+          automaticamente). Passe o mouse sobre uma foto para removê-la ou
           definir como principal (estrela).
         </p>
       </section>
