@@ -23,6 +23,7 @@ import { getVeiculoBySlug, getLocacaoSimilares } from "@/lib/veiculos";
 import type { Veiculo } from "@/lib/types";
 import { formatPreco, formatKm } from "@/lib/utils";
 import { waLink, CONFIG } from "@/lib/config";
+import { veiculoKeywords, buildVeiculoJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -42,6 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       v.descricao ||
       `Alugue o ${v.marca} ${v.modelo} ${v.versao} na SS Veículos, Cacoal–RO. Diárias e planos mensais.`,
+    keywords: [...veiculoKeywords(v), "aluguel de carro", "locação de veículo"].join(", "),
     alternates: {
       canonical: `/locadora/${slug}`,
     },
@@ -95,9 +97,14 @@ export default async function LocacaoPage({ params }: Props) {
     specs.push({ icon: DoorOpen, label: "Portas", value: `${v.portas} portas` });
 
   const temPreco = v.precoDiaria || v.precoMensal;
+  const jsonLd = buildVeiculoJsonLd(v, `/locadora/${slug}`);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex items-center gap-2 mb-6 font-condensed">
         <Link
           href="/locadora"

@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import VisitTracker from "@/components/VisitTracker";
 import Providers from "./providers";
 import { CONFIG, SITE_URL } from "@/lib/config";
+import { BASE_KEYWORDS } from "@/lib/seo";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
   title: "SS Veículos — Há mais de 20 anos realizando sonhos | Cacoal-RO",
   description:
     "Encontre seu próximo veículo na SS Veículos. Carros, caminhões e utilitários em Cacoal-RO. Mais de 22 anos realizando sonhos.",
-  keywords: "veículos, carros, seminovos, locadora, Cacoal, Rondônia, SS Veículos",
+  keywords: BASE_KEYWORDS.join(", "),
   alternates: {
     canonical: "/",
   },
@@ -67,6 +68,8 @@ const jsonLd = {
   },
   openingHours: ["Mo-Fr 08:00-18:00", "Sa 08:00-12:00"],
   sameAs: [CONFIG.social.instagram, CONFIG.social.facebook],
+  areaServed: ["Cacoal", "Rondônia"],
+  priceRange: "$$",
 };
 
 export default function RootLayout({

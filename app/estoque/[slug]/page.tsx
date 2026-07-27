@@ -23,6 +23,7 @@ import { getVeiculoBySlug, getVeiculosSimilares } from "@/lib/veiculos";
 import type { Veiculo } from "@/lib/types";
 import { formatPreco, formatKm } from "@/lib/utils";
 import { waLink, CONFIG } from "@/lib/config";
+import { veiculoKeywords, buildVeiculoJsonLd } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: desc,
+    keywords: veiculoKeywords(v).join(", "),
     alternates: {
       canonical: `/estoque/${slug}`,
     },
@@ -100,8 +102,14 @@ export default async function VeiculoPage({ params }: Props) {
   if (v.portas > 0)
     specs.push({ icon: DoorOpen, label: "Portas", value: `${v.portas} portas` });
 
+  const jsonLd = buildVeiculoJsonLd(v, `/estoque/${slug}`);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex items-center gap-2 mb-6 font-condensed">
         <Link
           href="/estoque"
