@@ -50,7 +50,7 @@ export default async function AdminLoginPage({ searchParams }: Props) {
                 required
                 autoComplete="email"
                 className="bg-c-bg border border-c-border rounded-lg text-c-text px-4 py-3 text-sm outline-none focus:border-brand-red transition-colors placeholder:text-c-text4"
-                placeholder="admin@ssveiculos.com.br"
+                placeholder="admin@ssveiculosnao vou fazer.com"
               />
             </div>
 
