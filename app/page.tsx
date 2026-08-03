@@ -4,6 +4,17 @@ import { ArrowRight, Car, Truck, Bus, ChevronRight, Award, Shield, Handshake, Ke
 import CardVeiculo from "@/components/CardVeiculo";
 import { getDestaques, getCategoriasCount } from "@/lib/veiculos";
 import { BANCOS } from "@/lib/bancos";
+import { SITE_URL } from "@/lib/config";
+
+// Schema WebSite — é daqui que o Google tira o "nome do site" exibido no
+// lugar do domínio nos resultados de busca. Precisa ficar na home do domínio.
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "SS Veículos",
+  alternateName: ["SS Veículos Cacoal", "SSveiculos Cacoal"],
+  url: `${SITE_URL}/`,
+};
 
 const CATEGORIAS = [
   { key: "Carro",      label: "Carros",      desc: "Seminovos e novos",  href: "/estoque?categoria=Carro",      Icon: Car },
@@ -28,6 +39,13 @@ export default async function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <section className="relative bg-[#1E293B] overflow-hidden">
         <div className="bar-grow absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-brand-red via-brand-red/40 to-transparent" />
         <div
